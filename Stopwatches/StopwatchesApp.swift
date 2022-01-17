@@ -65,8 +65,7 @@ struct AboutView: View {
             Link("GitHub", destination: URL(string: "https://github.com/0xfederama")!)
             HStack {
                 Spacer()
-                Text("Icon made by")
-                Link("Flaticon", destination: URL(string: "https://www.flaticon.com/premium-icon/stopwatch_1321756?term=stopwatch&page=1&position=38&page=1&position=38&related_id=1321756&origin=tag")!)
+                Text("Icon made by [Flaticon](https://www.flaticon.com/premium-icon/stopwatch_1321756?term=stopwatch&page=1&position=38&page=1&position=38&related_id=1321756&origin=tag)")
                 Spacer()
             }
             Text("This app is made just to learn SwiftUI, please note that there may be some errors")
