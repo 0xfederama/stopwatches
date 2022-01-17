@@ -92,8 +92,8 @@ struct TimersView: View {
             .padding()
         
         if watches.isEmpty {
-            Text("")
             Text("No stopwatches created")
+                .padding()
         } else {
             VStack {
                 ForEach(watches, id: \.self) { watch in
