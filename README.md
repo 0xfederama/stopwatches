@@ -20,7 +20,7 @@ Homepage | Stopwatch | New stopwatch
 - Move `Stopwatches.app` in the Applications folder
 - Open `Stopwatches.app`
 	- You can open it by right-clicking on the file in the Applications folder and select Open
-	- If that does not work, try to open it normally, then go into System Preferences > Security & Privacy > General > Open anyway and re-open the app
+	- If that does not work, try to open it normally, then go into System Preferences > Security & Privacy > General > Open Anyway
 - Now you should be able to use the app
 
 ## Feedback and contributing
