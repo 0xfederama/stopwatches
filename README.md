@@ -12,7 +12,7 @@ App icon by [Flaticon](https://www.flaticon.com/premium-icon/stopwatch_1321756?t
 
 Homepage | Stopwatch | New stopwatch
 --- | --- | ---
-![Homepage](https://github.com/0xfederama/stopwatches/blob/main/screenshots/homepage.png) | ![Start existing stopwatch](https://github.com/0xfederama/stopwatches/blob/main/screenshots/new_watch.png) | ![Create new stopwatch](https://github.com/0xfederama/stopwatches/blob/main/screenshots/stopwatch.png)
+![Homepage](https://github.com/0xfederama/stopwatches/blob/main/screenshots/homepage.png) | ![Start existing stopwatch](https://github.com/0xfederama/stopwatches/blob/main/screenshots/stopwatch.png) | ![Create new stopwatch](https://github.com/0xfederama/stopwatches/blob/main/screenshots/new_watch.png)
 
 ## Installation (only MacOS)
 
