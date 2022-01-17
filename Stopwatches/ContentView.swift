@@ -98,7 +98,6 @@ struct TimersView: View {
             VStack {
                 ForEach(watches, id: \.self) { watch in
                     HStack {
-                        Text(" ")
                         Text(watch.name)
                         Spacer()
                         Text(String(watch.minutes) + " minutes")
@@ -118,16 +117,17 @@ struct TimersView: View {
                             }
                             self.currentView = 0
                         }
-                        Text(" ")
                     }
                 }
             }
+            .padding()
         }
         
         Button("New stopwatch") {
             self.currentView = 2
         }
         .padding()
+        .padding(.top, 24)
     }
 }
 
