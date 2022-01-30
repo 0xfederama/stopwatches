@@ -26,4 +26,4 @@ Homepage | Stopwatch | New stopwatch
 ## Feedback and contributing
 If you find some bugs or request a feature, please feel free to open an issue on this repo.
 
-If you want to contribute to this project, fork it and then file a pull request.
+If you want to contribute to this project, you can fork it and create a pull request any time.

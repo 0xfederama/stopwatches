@@ -14,7 +14,7 @@ struct Watch: Hashable, Codable {
 
 class ReadData: ObservableObject {
     @Published var watches = [Watch]()
-    
+
     init() {
         // If file doesn't exist, create it
         let fileManager = FileManager.default
@@ -26,7 +26,7 @@ class ReadData: ObservableObject {
         let fileURL = URL(fileURLWithPath: "Library/Application Support/Stopwatches/watches.json")
         loadData(url: fileURL)
     }
-    
+
     func loadData(url: URL) {
         let data = try! Data(contentsOf: url)
         @State var watches = try? JSONDecoder().decode([Watch].self, from: data)
@@ -36,16 +36,16 @@ class ReadData: ObservableObject {
 
 class WriteData: ObservableObject {
     @Published var watches = [Watch]()
-    
+
     init(watches: [Watch]) {
         writeData(watches: watches)
     }
-    
+
     func writeData(watches: [Watch]) {
         let url = URL(fileURLWithPath: "Library/Application Support/Stopwatches/watches.json")
         let encoded = try? JSONEncoder().encode(watches)
         do {
-             try encoded!.write(to: url)
+            try encoded!.write(to: url)
         } catch {
             print("Failed to write JSON data: \(error.localizedDescription)")
         }
@@ -61,9 +61,9 @@ struct ContentView: View {
             return ReadData().watches
         }
     }
-    
+
     var body: some View {
-        
+
         switch currentView {
         case 1:
             ContinueWatch(currentView: $currentView, watches: watches, currentWatch: currentWatch)
@@ -84,13 +84,13 @@ struct TimersView: View {
     @State private var alert = false
     @State var watches: [Watch]
     @Binding var currentWatch: String
-    
+
     var body: some View {
         Text("Your stopwatches")
             .font(.title)
             .fontWeight(.heavy)
             .padding()
-        
+
         if watches.isEmpty {
             Text("No stopwatches created")
                 .padding()
@@ -100,7 +100,9 @@ struct TimersView: View {
                     HStack {
                         Text(watch.name)
                         Spacer()
-                        Text(String(watch.minutes) + " minutes")
+                        let hours = Int(watch.minutes / 60)
+                        let minutes = Int(watch.minutes % 60)
+                        Text(String(hours) + "h " + String(minutes) + "m")
                         Text("")
                         Button("Start") {
                             self.currentWatch = watch.name
@@ -120,14 +122,14 @@ struct TimersView: View {
                     }
                 }
             }
-            .padding()
+                .padding()
         }
-        
+
         Button("New stopwatch") {
             self.currentView = 2
         }
-        .padding()
-        .padding(.top, 24)
+            .padding()
+            .padding(.top, 24)
     }
 }
 
@@ -136,22 +138,33 @@ struct CreateWatch: View {
     @Binding var currentView: Int
     @State var watchName: String = ""
     @State var watches: [Watch]
-    
+
     var body: some View {
         Text("")
         Text("Create a new stopwatch")
             .font(.title)
             .fontWeight(.heavy)
-        
+
         VStack {
-            TextField("Enter stopwatch name...", text: $watchName)
+            TextField("Enter stopwatch name...", text: $watchName, onCommit: {
+                //Check if another stopwatch with the same name already exists
+                if exists(watches: watches, name: watchName) {
+                    print("Stopwatch already exists")
+                } else {
+                    //Create the new stopwatch
+                    let newWatch = Watch(name: watchName, minutes: 0)
+                    watches.append(newWatch)
+                    _ = WriteData(watches: watches)
+                }
+                self.currentView = 0
+            })
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
             Text("Hint: you cannot create a stopwatch that already exists")
                 .italic()
             Text("")
         }
-        
+
         HStack {
             Button("Cancel") {
                 self.currentView = 0
@@ -169,7 +182,7 @@ struct CreateWatch: View {
                 self.currentView = 0
             }
         }
-        .padding()
+            .padding()
     }
 }
 
@@ -178,10 +191,10 @@ struct ContinueWatch: View {
     @Binding var currentView: Int
     @State var watches: [Watch]
     let currentWatch: String
-    
+
     @State private var progressTime = 0
     var timer: Timer {
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {_ in
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             progressTime += 1
         }
     }
@@ -194,17 +207,17 @@ struct ContinueWatch: View {
     var seconds: Int {
         progressTime % 60
     }
-   
+
     var body: some View {
         Text("Stopwatch " + currentWatch + " started")
             .font(.title)
             .fontWeight(.heavy)
             .padding()
-        
+
         Spacer()
         Text(currentWatch + " started with " + String(getMinutes(watches: watches, name: currentWatch)) + " minutes")
             .fontWeight(.bold)
-        
+
         HStack(spacing: 2) {
             StopwatchUnitView(timeUnit: hours)
             Text(":")
@@ -212,9 +225,9 @@ struct ContinueWatch: View {
             Text(":")
             StopwatchUnitView(timeUnit: seconds)
         }
-        .onAppear(perform: { _ = timer })
-        .padding()
-        
+            .onAppear(perform: { _ = timer })
+            .padding()
+
         Spacer()
         Button("Stop") {
             //Write minutes to json

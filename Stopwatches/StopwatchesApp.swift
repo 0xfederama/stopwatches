@@ -10,16 +10,16 @@ import SwiftUI
 @main
 struct StopwatchesApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .onAppear {
-                    //Disable tabbing
-                    NSWindow.allowsAutomaticWindowTabbing = false
-                }
+                //Disable tabbing
+                NSWindow.allowsAutomaticWindowTabbing = false
+            }
         }
-        .commands {
+            .commands {
             // Disable new window option
             CommandGroup(replacing: .newItem, addition: { })
             // Modify about view
@@ -77,7 +77,7 @@ struct AboutView: View {
                 .padding()
             Text("")
         }
-        .frame(idealWidth: 300, idealHeight: 300)
-        .fixedSize()
+            .frame(idealWidth: 300, idealHeight: 300)
+            .fixedSize()
     }
 }
