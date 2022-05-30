@@ -10,16 +10,16 @@ import SwiftUI
 @main
 struct StopwatchesApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .onAppear {
-                //Disable tabbing
-                NSWindow.allowsAutomaticWindowTabbing = false
-            }
+                    //Disable tabbing
+                    NSWindow.allowsAutomaticWindowTabbing = false
+                }
         }
-            .commands {
+        .commands {
             // Disable new window option
             CommandGroup(replacing: .newItem, addition: { })
             // Modify about view
@@ -36,7 +36,7 @@ struct StopwatchesApp: App {
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     private var aboutBoxWindowController: NSWindowController?
-
+    
     func showAboutPanel() {
         if aboutBoxWindowController == nil {
             let styleMask: NSWindow.StyleMask = [.closable, .titled]
@@ -46,9 +46,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             window.contentView = NSHostingView(rootView: AboutView())
             aboutBoxWindowController = NSWindowController(window: window)
         }
-
+        
         aboutBoxWindowController?.showWindow(aboutBoxWindowController?.window)
     }
+    
+    // Quit app on Close
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return true
+    }
+    
 }
 
 struct AboutView: View {
@@ -65,7 +71,7 @@ struct AboutView: View {
             Link("GitHub", destination: URL(string: "https://github.com/0xfederama")!)
             HStack {
                 Spacer()
-                Text("Icon made by [Flaticon](https://www.flaticon.com/premium-icon/stopwatch_1321756?term=stopwatch&page=1&position=38&page=1&position=38&related_id=1321756&origin=tag)")
+                Text("Icon made with [Flaticon](https://www.flaticon.com/premium-icon/stopwatch_1321756?term=stopwatch&page=1&position=38&page=1&position=38&related_id=1321756&origin=tag)")
                 Spacer()
             }
             Text("This app is made just to learn SwiftUI, please note that there may be some errors")
@@ -77,7 +83,7 @@ struct AboutView: View {
                 .padding()
             Text("")
         }
-            .frame(idealWidth: 300, idealHeight: 300)
-            .fixedSize()
+        .frame(idealWidth: 300, idealHeight: 300)
+        .fixedSize()
     }
 }
