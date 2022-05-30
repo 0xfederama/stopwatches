@@ -12,43 +12,19 @@ struct Watch: Hashable, Codable {
     var minutes: Int
 }
 
-class ReadData: ObservableObject {
-    @Published var watches = [Watch]()
-    
-    init() {
-        // If file doesn't exist, create it
-        let fileManager = FileManager.default
-        if !fileManager.fileExists(atPath: "Library/Application Support/Stopwatches/watches.json") {
-            print("File does not exist")
-            try? fileManager.createDirectory(atPath: "Library/Application Support/Stopwatches", withIntermediateDirectories: true, attributes: nil)
-            fileManager.createFile(atPath: "Library/Application Support/Stopwatches/watches.json", contents: try? Data(contentsOf: Bundle.main.url(forResource: "watches", withExtension: "json")!))
-        }
-        let fileURL = URL(fileURLWithPath: "Library/Application Support/Stopwatches/watches.json")
-        loadData(url: fileURL)
-    }
-    
-    func loadData(url: URL) {
-        let data = try! Data(contentsOf: url)
-        @State var watches = try? JSONDecoder().decode([Watch].self, from: data)
-        self.watches = watches!
+var watches: [Watch] = []
+
+func saveWatches() {
+    let encoder = JSONEncoder()
+    if let encoded = try? encoder.encode(watches) {
+        UserDefaults.standard.set(encoded, forKey: "Stopwatches")
     }
 }
 
-class WriteData: ObservableObject {
-    @Published var watches = [Watch]()
-    
-    init(watches: [Watch]) {
-        writeData(watches: watches)
-    }
-    
-    func writeData(watches: [Watch]) {
-        let url = URL(fileURLWithPath: "Library/Application Support/Stopwatches/watches.json")
-        let encoded = try? JSONEncoder().encode(watches)
-        do {
-            try encoded!.write(to: url)
-        } catch {
-            print("Failed to write JSON data: \(error.localizedDescription)")
-        }
+func loadWatches() {
+    if let savedWatches = UserDefaults.standard.object(forKey: "Stopwatches") as? Data {
+        let decoder = JSONDecoder()
+        watches = try! decoder.decode([Watch].self, from: savedWatches)
     }
 }
 
@@ -56,23 +32,22 @@ class WriteData: ObservableObject {
 struct ContentView: View {
     @State var currentView = 0
     @State var currentWatch: String = ""
-    var watches: [Watch] {
-        get {
-            return ReadData().watches
-        }
+
+    init() {
+        loadWatches()
     }
     
     var body: some View {
         
         switch currentView {
         case 1:
-            ContinueWatch(currentView: $currentView, watches: watches, currentWatch: currentWatch)
+            ContinueWatchView(currentView: $currentView/*, watches: watches*/, currentWatch: currentWatch)
                 .frame(minWidth: 400, maxWidth: 400)
         case 2:
-            CreateWatch(currentView: $currentView, watches: watches)
+            NewWatchView(currentView: $currentView/*, watches: watches*/)
                 .frame(minWidth: 400, maxWidth: 400)
         default:
-            TimersView(currentView: $currentView, watches: watches, currentWatch: $currentWatch)
+            TimersView(currentView: $currentView/*, watches: watches*/, currentWatch: $currentWatch)
                 .frame(minWidth: 400)
         }
     }
@@ -81,15 +56,15 @@ struct ContentView: View {
 // Homepage
 struct TimersView: View {
     @Binding var currentView: Int
-    @State private var alert = false
-    @State var watches: [Watch]
     @Binding var currentWatch: String
+    @State var refreshView: Bool = false
     
     var body: some View {
         Text("Your stopwatches")
             .font(.title)
             .fontWeight(.heavy)
             .padding()
+            .background(Color.clear.disabled(refreshView))
         
         if watches.isEmpty {
             Text("No stopwatches created")
@@ -106,18 +81,19 @@ struct TimersView: View {
                         Text("")
                         Button("Start") {
                             currentWatch = watch.name
-                            self.currentView = 1
+                            currentView = 1
                         }
                         Button("Delete") {
                             //Delete stopwatch from watches
-                            self.currentWatch = watch.name
+                            currentWatch = watch.name
                             let index = getIndex(watches: watches, name: currentWatch)
-                            print("Index " + String(index))
+                            print("Delete at index " + String(index))
                             if index != -1 {
                                 watches.remove(at: index)
-                                _ = WriteData(watches: watches)
+                                saveWatches()
                             }
-                            self.currentView = 0
+                            currentView = 0
+                            refreshView.toggle()
                         }
                     }
                 }
@@ -126,7 +102,7 @@ struct TimersView: View {
         }
         
         Button("New stopwatch") {
-            self.currentView = 2
+            currentView = 2
         }
         .padding()
         .padding(.top, 24)
@@ -134,17 +110,17 @@ struct TimersView: View {
 }
 
 // Create a new stopwatch
-struct CreateWatch: View {
+struct NewWatchView: View {
     @Binding var currentView: Int
     @State var watchName: String = ""
-    @State var watches: [Watch]
     @State private var duplicatedAlert: Bool = false
+    @FocusState private var inputFieldFocused: Bool
     
     var body: some View {
-        Text("")
         Text("New stopwatch")
             .font(.title)
             .fontWeight(.heavy)
+            .padding()
         
         VStack {
             Text("")
@@ -157,13 +133,18 @@ struct CreateWatch: View {
                     //Create the new stopwatch
                     let newWatch = Watch(name: watchName, minutes: 0)
                     watches.append(newWatch)
-                    _ = WriteData(watches: watches)
-                    self.currentView = 0
+                    saveWatches()
+                    currentView = 0
                 }
             })
+            .onAppear() {
+                inputFieldFocused = true
+            }
+            .focused($inputFieldFocused)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .frame(width: 240)
             .padding()
+            
             if duplicatedAlert == true {
                 Text("A stopwatch with that name already exists!")
             }
@@ -172,7 +153,7 @@ struct CreateWatch: View {
         
         HStack {
             Button("Cancel") {
-                self.currentView = 0
+                currentView = 0
             }
             Button("Create") {
                 //Check if another stopwatch with the same name already exists
@@ -183,8 +164,8 @@ struct CreateWatch: View {
                     //Create the new stopwatch
                     let newWatch = Watch(name: watchName, minutes: 0)
                     watches.append(newWatch)
-                    _ = WriteData(watches: watches)
-                    self.currentView = 0
+                    saveWatches()
+                    currentView = 0
                 }
             }
         }
@@ -193,9 +174,8 @@ struct CreateWatch: View {
 }
 
 // Continue an existing stopwatch
-struct ContinueWatch: View {
+struct ContinueWatchView: View {
     @Binding var currentView: Int
-    @State var watches: [Watch]
     let currentWatch: String
     
     @State private var progressTime = 0
@@ -243,8 +223,8 @@ struct ContinueWatch: View {
             //Write minutes to json
             let minutes = progressTime / 60
             sumMinutes(watches: &watches, name: currentWatch, minutes: minutes)
-            _ = WriteData(watches: watches)
-            self.currentView = 0
+            saveWatches()
+            currentView = 0
         }
         Text("")
     }
