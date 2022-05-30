@@ -60,30 +60,39 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 struct AboutView: View {
     var body: some View {
         VStack {
-            Text("")
             Image("stopwatch-64")
                 .padding()
-            Text("Stopwatches (v1.0)")
+//                .padding(.top, 16)
+            Text("Stopwatches (v2.0)")
                 .font(.title)
                 .fontWeight(.heavy)
-            Text("")
+                .padding()
+            
             Text("Made by Federico Ramacciotti")
-            Link("GitHub", destination: URL(string: "https://github.com/0xfederama")!)
+            Text("[GitHub](github.com/0xfederama)")
             HStack {
                 Spacer()
                 Text("Icon made with [Flaticon](https://www.flaticon.com/premium-icon/stopwatch_1321756?term=stopwatch&page=1&position=38&page=1&position=38&related_id=1321756&origin=tag)")
                 Spacer()
             }
-            Text("This app is made just to learn SwiftUI, please note that there may be some errors")
-                .fontWeight(.ultraLight)
+            
+            Text("I know this app is very small, but I made it with love while studying for the University.")
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+                .padding(.top)
+            Text("If you would like to donate something it would mean a lot to me! [Tip jar](paypal.me/federicoramacciotti) ❤️")
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+                .padding(.bottom)
+            
+            Text("This app is made just to learn SwiftUI, please note that there may be some errors. If you find them please consider submitting a Github issue.")
+                .fontWeight(.light)
                 .font(.callout)
                 .foregroundColor(.gray)
-                .frame(width: 280, height: 40, alignment: .center)
                 .multilineTextAlignment(.center)
                 .padding()
-            Text("")
         }
-        .frame(idealWidth: 300, idealHeight: 300)
+        .frame(width: 380)
         .fixedSize()
     }
 }
