@@ -32,7 +32,7 @@ func loadWatches() {
 struct ContentView: View {
     @State var currentView = 0
     @State var currentWatch: String = ""
-
+    
     init() {
         loadWatches()
     }
@@ -41,14 +41,14 @@ struct ContentView: View {
         
         switch currentView {
         case 1:
-            ContinueWatchView(currentView: $currentView/*, watches: watches*/, currentWatch: currentWatch)
+            ContinueWatchView(currentView: $currentView, currentWatch: currentWatch)
                 .frame(minWidth: 400, maxWidth: 400)
         case 2:
-            NewWatchView(currentView: $currentView/*, watches: watches*/)
+            NewWatchView(currentView: $currentView)
                 .frame(minWidth: 400, maxWidth: 400)
         default:
-            TimersView(currentView: $currentView/*, watches: watches*/, currentWatch: $currentWatch)
-                .frame(minWidth: 400)
+            TimersView(currentView: $currentView, currentWatch: $currentWatch)
+                .frame(minWidth: 400, maxWidth: 400)
         }
     }
 }
@@ -74,6 +74,7 @@ struct TimersView: View {
                 ForEach(watches, id: \.self) { watch in
                     HStack {
                         Text(watch.name)
+                            .help(Text(watch.name))
                         Spacer()
                         let hours = Int(watch.minutes / 60)
                         let minutes = Int(watch.minutes % 60)
@@ -126,15 +127,17 @@ struct NewWatchView: View {
             Text("")
             TextField("Enter stopwatch name...", text: $watchName, onCommit: {
                 //Check if another stopwatch with the same name already exists
-                if exists(watches: watches, name: watchName) {
-                    print("Stopwatch already exists")
-                    duplicatedAlert = true
-                } else {
-                    //Create the new stopwatch
-                    let newWatch = Watch(name: watchName, minutes: 0)
-                    watches.append(newWatch)
-                    saveWatches()
-                    currentView = 0
+                if watchName != "" {
+                    if exists(watches: watches, name: watchName) {
+                        print("Stopwatch already exists")
+                        duplicatedAlert = true
+                    } else {
+                        //Create the new stopwatch
+                        let newWatch = Watch(name: watchName, minutes: 0)
+                        watches.append(newWatch)
+                        saveWatches()
+                        currentView = 0
+                    }
                 }
             })
             .onAppear() {
@@ -155,19 +158,23 @@ struct NewWatchView: View {
             Button("Cancel") {
                 currentView = 0
             }
+            .keyboardShortcut(.cancelAction)
             Button("Create") {
                 //Check if another stopwatch with the same name already exists
-                if exists(watches: watches, name: watchName) {
-                    print("Stopwatch already exists")
-                    duplicatedAlert = true
-                } else {
-                    //Create the new stopwatch
-                    let newWatch = Watch(name: watchName, minutes: 0)
-                    watches.append(newWatch)
-                    saveWatches()
-                    currentView = 0
+                if watchName != "" {
+                    if exists(watches: watches, name: watchName) {
+                        print("Stopwatch already exists")
+                        duplicatedAlert = true
+                    } else {
+                        //Create the new stopwatch
+                        let newWatch = Watch(name: watchName, minutes: 0)
+                        watches.append(newWatch)
+                        saveWatches()
+                        currentView = 0
+                    }
                 }
             }
+            .keyboardShortcut(.defaultAction)
         }
         .padding()
     }
@@ -198,6 +205,9 @@ struct ContinueWatchView: View {
         Text(currentWatch)
             .font(.title)
             .fontWeight(.heavy)
+            .multilineTextAlignment(.center)
+            .lineLimit(nil)
+            .fixedSize(horizontal: false, vertical: true)
             .padding()
         
         Spacer()

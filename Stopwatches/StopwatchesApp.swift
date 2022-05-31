@@ -62,7 +62,6 @@ struct AboutView: View {
         VStack {
             Image("stopwatch-64")
                 .padding()
-//                .padding(.top, 16)
             Text("Stopwatches (v2.0)")
                 .font(.title)
                 .fontWeight(.heavy)
